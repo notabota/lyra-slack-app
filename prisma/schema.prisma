@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model message {
+  id          Int      @id @default(autoincrement())
+  userId      String
+  type        String
+  timestamp   String   @unique
+  text        String?
+  channelId   String
+  channelType String
+  eventTs     String
+  threadTs    String?
+  parentId    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  files     file[]
+  reactions reaction[]
+}
+
+model file {
+  id                 Int      @id @default(autoincrement())
+  fileId             String
+  fileType           String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  name               String?
+  title              String?
+  pretty_type        String
+  mimetype           String
+  timestamp          Int
+  user               String?
+  size               Int
+  mode               String
+  urlPrivate         String?
+  urlPrivateDownload String?
+  permalink          String
+
+  message   message @relation(fields: [messageId], references: [id])
+  messageId Int
+}
+
+model reaction {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  reaction  String
+  itemUser  String
+  eventTs   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  message   message @relation(fields: [messageId], references: [id])
+  messageId Int
+}
