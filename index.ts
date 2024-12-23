@@ -12,7 +12,7 @@ const app = new App({
 });
 
 // Listen for reactions being added to messages
-app.event(/(.*?)/, async ({ event }) => {
+app.event(/(.*?)/, async ({ event, client, logger }) => {
   try {
             
     console.log('----------------------------------------');
@@ -36,6 +36,48 @@ app.event(/(.*?)/, async ({ event }) => {
               parentId: event.parent_user_id
             }
           });
+
+          const userInfo = await client.users.info({
+            user: event.user
+          });
+
+          console.log('userInfo', userInfo);
+
+          if (userInfo.ok && userInfo.user) {
+            const existingUser = await prisma.user.findFirst({
+              where: {
+                userId: userInfo.user.id
+              }
+            });
+
+            if (!existingUser) {
+              await prisma.user.create({
+                data: {
+                  userId: userInfo.user.id,
+                  name: userInfo.user.name,
+                  realName: userInfo.user.real_name,
+                  displayName: userInfo.user.profile?.display_name,
+                  firstName: userInfo.user.profile?.first_name,
+                  lastName: userInfo.user.profile?.last_name,
+                  teamId: userInfo.user.team_id,
+                  isAdmin: userInfo.user.is_admin,
+                  isOwner: userInfo.user.is_owner,
+                  isPrimaryOwner: userInfo.user.is_primary_owner,
+                  isRestricted: userInfo.user.is_restricted,
+                  isUltraRestricted: userInfo.user.is_ultra_restricted,
+                  isBot: userInfo.user.is_bot,
+                  updated: userInfo.user.updated,
+                  isEmailConfirmed: userInfo.user.is_email_confirmed,
+                  whoCanShareContactCard: userInfo.user.who_can_share_contact_card,
+                  color: userInfo.user.color,
+                  tz: userInfo.user.tz,
+                  phone: userInfo.user.profile?.phone,
+                  title: userInfo.user.profile?.title,
+                  image: userInfo.user.profile?.image_192
+                }
+              });
+            }
+          }
           
         } else if (event.subtype == 'file_share') {
 
@@ -116,7 +158,7 @@ app.event(/(.*?)/, async ({ event }) => {
     }
     
   } catch (error) {
-    console.error('Error handling reaction:', error);
+    logger.error('Error handling reaction:', error);
   }
 });
 

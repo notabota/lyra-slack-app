@@ -65,3 +65,30 @@ model reaction {
   message   message @relation(fields: [messageId], references: [id])
   messageId Int
 }
+
+model user {
+  id                     Int      @id @default(autoincrement())
+  userId                 String?
+  name                   String?
+  realName               String?
+  displayName            String?
+  firstName              String?
+  lastName               String?
+  teamId                 String?
+  isAdmin                Boolean?
+  isOwner                Boolean?
+  isPrimaryOwner         Boolean?
+  isRestricted           Boolean?
+  isUltraRestricted      Boolean?
+  isBot                  Boolean?
+  updated                Int?
+  isEmailConfirmed       Boolean?
+  whoCanShareContactCard String?
+  color                  String?
+  tz                     String?
+  phone                  String?
+  title                  String?
+  image                  String?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+}
